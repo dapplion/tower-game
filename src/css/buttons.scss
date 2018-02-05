@@ -1,0 +1,29 @@
+button {
+  margin:5px;
+  padding: 5px;
+  border-radius: 4px;
+  transition-duration: 0.4s;
+}
+
+
+.bttn {
+  color: $main;
+  background-color: $secondary;
+}
+
+.bttn:hover {
+  color: $secondary;
+  background-color: $main;
+  border: 1px solid $secondary;
+}
+
+.bttnHeader {
+  color: $secondary;
+  background-color: $main;
+}
+
+.bttnHeader:hover {
+  color: $main;
+  background-color: $secondary;
+  border: 1px solid $main;
+}

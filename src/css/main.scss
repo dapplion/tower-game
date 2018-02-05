@@ -1,0 +1,42 @@
+@import "colors";
+@import "dots";
+@import "buttons";
+
+* {
+  margin: 0px;
+  padding: 0px;
+  font-family: 'Verdana';
+  clear: left;
+  text-align: center;
+}
+
+.header, .footer {
+  width: 100%;
+  padding: 10px;
+  color: $main;
+  background-color: $secondary;
+}
+
+.body {
+  padding: 5px;
+  color: $secondary;
+  background-color: $main;
+  font-size: 50%;
+}
+
+input {
+  color: $secondary;
+  background-color: $main;
+  padding: 5px;
+  margin: 5px;
+  width: 30px;
+}
+
+.gameDisplayTable {
+  margin-left:auto;
+  margin-right:auto;
+}
+
+.gameDisplayTable td {
+  padding: 0 15px 0 15px;
+}
