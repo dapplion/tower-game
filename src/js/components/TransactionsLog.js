@@ -1,21 +1,59 @@
 import React from "react";
+import TransactionLogTable from './TransactionsLog/TransactionsTable';
+import EventBus from 'EventBusAlias';
 
-import TransactionsTable from './TransactionsLog/TransactionsTable';
+function processStatus(data) {
+        // userResponse: true/false
+        // contractResponse: true/false
+        if ('contractResponse' in data) {
+            return 'Processed';
+        } else if ('userResponse' in data) {
+            return 'Aproved';
+        } else {
+            return 'fired'
+        }
+    }
 
-export default class GameDisplay extends React.Component {
+export default class TransactionsLog extends React.Component {
+
+
   constructor() {
     super();
     this.state = {
       // Initial states of variables must be defined in the constructor
-      count: 3,
-      dxs: [-34, 12, 42, 51, 0],
-      maxCount: 12
+      transactionsLog : {},
     };
+    // Bind internal events
+    this.handleTXUpdate = this.handleTXUpdate.bind(this);
+    // Bind external events
+    EventBus.on(EventBus.tag.TXUpdate,this.handleTXUpdate);
   }
 
-  changeTitle(title) {
-
-  }
+    handleTXUpdate(data) {
+      let id = data.TXid;
+      let TX = {};
+      if (!(id in this.state.transactionsLog)) {
+        // Create TX entry
+        TX.name = 'TX #'+data.TXnum;
+        TX.id = id;
+      } else {
+        TX = this.state.transactionsLog[id];
+        if ('receipt' in data) {
+          TX.receipt = data.receipt;
+        }
+      }
+      if ('status' in data) {
+        TX.status = data.status
+      } else {
+        TX.status = processStatus(data);
+      }
+      let updatedTransactionsLog = Object.assign({}, this.state.transactionsLog, {
+          [id]: TX,
+      });
+      this.setState({
+        transactionsLog: updatedTransactionsLog
+      });
+    }
 
   handleChange(e) {
     const title = e.target.value;
@@ -26,7 +64,9 @@ export default class GameDisplay extends React.Component {
     return (
       <div class='body'>
         <h2>Transactions Log</h2>
-        <TransactionsTable />
+        <TransactionLogTable
+          transactionsLog={this.state.transactionsLog}
+          />
       </div>
     );
   }

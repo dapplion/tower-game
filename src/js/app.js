@@ -3,7 +3,6 @@ import '../css/main.scss';
 import React from "react";
 import ReactDOM from "react-dom";
 import { RandomGenerator } from './random-generator';
-import { AddImage } from './addImage';
 
 
 // const outputParagraph = $('#outputParagraph');
@@ -41,6 +40,7 @@ import Footer from './components/Footer.js';
 import ConnexionModule from './components/ConnexionModule.js';
 import GameDisplay from './components/GameDisplay.js';
 import TransactionsLog from './components/TransactionsLog.js';
+
 
 class Layout extends React.Component {
   render() {

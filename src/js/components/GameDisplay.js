@@ -1,5 +1,4 @@
 import React from "react";
-
 import Table from './GameDisplay/Table';
 
 export default class GameDisplay extends React.Component {
@@ -13,14 +12,6 @@ export default class GameDisplay extends React.Component {
     };
   }
 
-  changeTitle(title) {
-
-  }
-
-  handleChange(e) {
-    const title = e.target.value;
-    this.setState({title});
-  }
 
   render() {
     return (

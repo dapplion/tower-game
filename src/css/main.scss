@@ -27,9 +27,10 @@
 input {
   color: $secondary;
   background-color: $main;
-  padding: 5px;
+  padding: 2px;
   margin: 5px;
-  width: 30px;
+  width: 25px;
+  font-size: 100%;
 }
 
 .gameDisplayTable {
