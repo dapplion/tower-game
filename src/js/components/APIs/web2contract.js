@@ -1,8 +1,8 @@
 import contract from './kSpecs';
 import { play } from './contractSimulation';
 import EventBus from 'EventBusAlias';
-import getAccount from './ethConnection';
 import keccak from 'Lib/keccak';
+import * as AppActions from "../../actions/AppActions";
 
 // Functionality
 // addr = getEthAddress('Random text')
@@ -20,106 +20,103 @@ function handlePlay2(data){
   // dx : Math.floor(Math.random() * 99)
   console.log('SENDING play for dx: '+data.dx)
   // fireTransactionSimulation(data.dx);
-  fireTransaction(data.dx);
+  if (sendIsPossible) {
+    fireTransaction(data.dx);
+  } else {
+    console.warn('Transaction not possible')
+  }
 }
 
 var TXcount = 0;
-var amountWei = getPlayPriceInWei();
-
-function getPlayPriceInWei() {
-    let amountEther = 1; // #### get this from the contract
-    return web3.toWei(amountEther, 'ether');
-}
-
 function fireTransactionSimulation(dxSelection) {
-    //if (TransactionIsPossible(fromAddress)) {
-    if (true) {
-        // Pre-process inputs
-        let fromAddress = '0x0fd92c62225c1673f496447294a2a00ab51bd634';
-        let TXid = TXcount++;
-        // Handle the transaction
+  if (true) {
+    // Pre-process inputs
+    let fromAddress = '0x0fd92c62225c1673f496447294a2a00ab51bd634';
+    let TXid = TXcount++;
+    // Handle the transaction
+    EventBus.emit(EventBus.tag.TXUpdate, {
+      TXid: TXid,
+      fired: true
+    } );
+    setTimeout(function () {
         EventBus.emit(EventBus.tag.TXUpdate, {
           TXid: TXid,
-          fired: true
+          userResponse: true,
+          dxSelection: dxSelection
         } );
-        setTimeout(function () {
-            EventBus.emit(EventBus.tag.TXUpdate, {
-              TXid: TXid,
-              userResponse: true,
-              dxSelection: dxSelection
-            } );
-        }, 1000);
-        setTimeout(function () {
-            EventBus.emit(EventBus.tag.TXUpdate, {
-              TXid: TXid,
-              contractResponse: true,
-              receipt: 'Fake receipt'
-            } );
-        }, 2000);
-        setTimeout(function () {
-            play(dxSelection);
-        }, 3000);
-    }
+    }, 1000);
+    setTimeout(function () {
+        EventBus.emit(EventBus.tag.TXUpdate, {
+          TXid: TXid,
+          contractResponse: true,
+          receipt: 'Fake receipt'
+        } );
+    }, 2000);
+    setTimeout(function () {
+        play(dxSelection);
+    }, 3000);
+  }
 }
 
-function fireTransaction(dxSelection) {
-        let fromAddress = getAccount();
-        if (TransactionIsPossible(fromAddress)) {
-            // Pre-process inputs
-            let TXnum = TXcount++;
-            let TXid = hashId(TXnum + Date())
-            console.log('TXid '+TXid)
-            EventBus.emit(EventBus.tag.TXUpdate, {
-              TXid: TXid,
-              TXnum: TXnum,
-              fired: true} );
-            // Handle the transaction
-            contractCallPlayPromise(TXid, fromAddress,dxSelection) // if the play called succeeded, call get receipt
-            .then(getReceiptPromise)
-            .then(function(receiptRaw){
-                console.log('receiptRaw: ',receiptRaw)
-                let receipt = JSON.stringify(receiptRaw, null, '\t');
-                let contractApprovedTX = Boolean(parseInt(receipt['status'], 16));
-                EventBus.emit(EventBus.tag.TXUpdate, {
-                  TXid: TXid,
-                  contractResponse: contractApprovedTX,
-                  receipt: receipt } );
-            }).catch(function (err) {
-                console.log(err)
-            })
-        } else {
+import AppStore from 'Store';
+// Define internal state
+var sendIsPossible = false;
+var contractInstance;
+var accountSender;
+var playPriceCall;
+AppStore.on(AppStore.tag.ACCOUNT.CHANGE, checkIfSendIsPossible);
+AppStore.on(AppStore.tag.CXN.CHANGE, checkIfSendIsPossible);
+AppStore.on(AppStore.tag.GAME.CHANGE, getPlayPrice);
 
-        }
+function getPlayPrice() {
+  let gameStatus = AppStore.getGameStatus();
+  playPriceCall = gameStatus.playPrice;
+}
+
+function checkIfSendIsPossible() {
+  let cxnStatus = AppStore.getCxnStatus();
+  let accountStatus = AppStore.getAccountStatus();
+  if (cxnStatus.active
+    && cxnStatus.contract
+    && cxnStatus.contractAddress
+    && accountStatus.active) {
+      sendIsPossible = true;
+      contractInstance = cxnStatus.contract;
+      accountSender = accountStatus.address;
+    } else {
+      sendIsPossible = false;
     }
+  // console.log('sendIsPossible',sendIsPossible)
+};
 
-    function contractCallPlayPromise (TXid, fromAddress, dxEnc) {
-            return new Promise(function(resolve, reject){
-                // var TXidAsAddress = keccak(TXid);
-                contract.play(dxEnc, TXid, {gas: 300000, from: fromAddress, value: amountWei}, function (err, txHash) {
-                    EventBus.emit(EventBus.tag.TXUpdate, {
-                      TXid: TXid,
-                      userResponse: !Boolean(err),
-                    } );
-                    if(err) reject(err);
-                    else resolve(txHash);
-                });
-            });
-        }
-
-        function getReceiptPromise (txhash) {
-            console.log('txhash: ',txhash)
-            return new Promise(function callback(resolve, reject){
-                web3.eth.getTransactionReceipt(txhash, function (err, receiptRaw) {
-                    if (err) reject(err);
-                    else resolve(receiptRaw);
-                });
-            });
-        }
-
-        function TransactionIsPossible(fromAddress) {
-            if( web3.isConnected() ){
-                if (web3.isAddress(fromAddress) ){
-                    return true;
-                } else { PubSub.publish('cxn.WrongAddress', fromAddress); }
-            } else { PubSub.publish('cxn.NoNodeFound', ''); }
-        }
+// function play(int32 dx, address TXid) payable public {
+function fireTransaction(dxSelection) {
+  // using the event emitter
+  let TXnum = TXcount++;
+  let TXid = hashId(TXnum + Date())
+  AppActions.TXUpdate({
+    id: TXid,
+    status: 'fired'
+  })
+  contractInstance.methods.play(dxSelection,TXid).send({
+    from: accountSender,
+    value: playPriceCall
+  })
+  .on('receipt', function(receipt){
+    AppActions.TXUpdate({
+      id: TXid,
+      status: 'got receipt',
+      receipt: receipt
+    })
+  })
+  .on('error', function(error){
+    if(error.message.toString().includes('User denied transaction signature')) {
+      AppActions.TXUpdate({
+        id: TXid,
+        status: 'user denied',
+      })
+    } else {
+      console.error(error)
+    }
+  }); // If there's an out of gas error the second parameter is the receipt.
+}

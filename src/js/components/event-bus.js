@@ -3,6 +3,7 @@ import Events from 'event-pubsub';
 let EventBus = new Events;
 
 var EventTag = {
+  playEvent: 'playEvent',
   TXUpdate: 'TXUpdate',
   countUpdate: 'countUpdate',
   dxsUpdate: 'dxsUpdate',

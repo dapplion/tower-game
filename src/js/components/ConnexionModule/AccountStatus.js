@@ -3,14 +3,12 @@ import React from "react";
 export default class AccountStatus extends React.Component {
 
   render() {
-    let connexionStatusText = this.props.accountActive ? 'Yes' : 'No';
-    let addressText = ' '+this.props.address;
-    let addressProviderText = ' '+this.props.addressProvider;
+    let connexionStatusText = this.props.account.active ? 'Yes' : 'No';
+    let addressText = ' - '+this.props.account.address;
     return (
       <div>
-        <a>Contract active: </a>
+        <a>Account active: </a>
         <a>{connexionStatusText}</a>
-        <a>{addressProviderText}</a>
         <a>{addressText}</a>
       </div>
     );

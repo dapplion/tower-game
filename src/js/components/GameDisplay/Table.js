@@ -1,82 +1,6 @@
 import React from 'react';
 import EventBus from 'EventBusAlias';
-
-class ProductRow extends React.Component {
-  render() {
-    const isCoin = this.props.isCoin;
-    const x = this.props.x;
-    const dx = this.props.dx;
-
-    return (
-      <tr>
-        <td>{isCoin}</td>
-        <td>{x}</td>
-        <td>{dx}</td>
-      </tr>
-    );
-  }
-}
-
-class ProductTable extends React.Component {
-  render() {
-    console.log('Updating Game Display render')
-    const maxCoins = this.props.maxCoins;
-    const numCoins = this.props.numCoins;
-    const dxs = this.props.dxs.slice();
-    const rows = [];
-    let lastCategory = null;
-
-    // Fill the dxs array
-    for (var i = dxs.length; i < maxCoins; i++) {
-      dxs.push(0);
-    }
-
-    // Fill the data array
-    var data = [];
-    for (var i = 0; i < numCoins; i++) {
-      data.push('X');
-    }
-    for (var i = numCoins; i < maxCoins; i++) {
-      data.push('-');
-    }
-
-    // Fill the x array
-    var x = []; x[0] = dxs[0];
-    for (var i = 1; i < numCoins; i++) {
-      x[i] = x[i-1] + dxs[i];
-    }
-
-    var count = 0;
-    data.forEach((dataElem) => {
-      if (count>maxCoins) {
-        return;
-      }
-      rows.push(
-        <ProductRow
-          isCoin={dataElem}
-          x={x[count]}
-          dx={dxs[count]}
-          key={count}
-        />
-      );
-      count++;
-    });
-    rows.reverse();
-
-    return (
-      <table class='gameDisplayTable'>
-        <thead>
-          <tr>
-            <th>Is coin</th>
-            <th>x</th>
-            <th>dx</th>
-          </tr>
-        </thead>
-        <tbody>{rows}</tbody>
-      </table>
-    );
-  }
-}
+import AppStore from 'Store';
 
 class SearchBar extends React.Component {
   constructor(props) {
@@ -143,25 +67,14 @@ class FilterableProductTable extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      userDx: 0,
-      maxCoins: 12,
-      count: 0,
-      dxs: Array.from({length: 20}, () => Math.floor(Math.random() * 9))
+      userDx: 600,
+      maxCoins: 15,
     };
 
     // Bind internal events
-    this.handleCountChange = this.handleCountChange.bind(this);
     this.handleUserDxChange = this.handleUserDxChange.bind(this);
-    this.handleDxsChange = this.handleDxsChange.bind(this);
     this.handleMaxChange = this.handleMaxChange.bind(this);
     this.handlePlay = this.handlePlay.bind(this);
-    // Bind external events
-    EventBus.on(EventBus.tag.countUpdate,this.handleCountChange);
-    EventBus.on(EventBus.tag.dxsUpdate,this.handleDxsChange);
-  }
-
-  handleCountChange(count) {
-    this.setState({count});
   }
 
   handleMaxChange(maxCoins) {
@@ -182,10 +95,6 @@ class FilterableProductTable extends React.Component {
     EventBus.emit(EventBus.tag.callPlay,{dx : userSelectedDx})
   }
 
-  handleDxsChange(dxs) {
-    this.setState({dxs})
-  }
-
   render() {
     return (
       <div>
@@ -197,12 +106,6 @@ class FilterableProductTable extends React.Component {
           onUserDxChange={this.handleUserDxChange}
           onPlay={this.handlePlay}
           onRandomPlay={this.handleRandomPlay}
-        />
-        <ProductTable
-          products={this.props.products}
-          numCoins={this.state.count}
-          maxCoins={this.state.maxCoins}
-          dxs={this.state.dxs}
         />
       </div>
     );

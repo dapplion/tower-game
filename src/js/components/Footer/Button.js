@@ -8,6 +8,7 @@ export default class Button extends React.Component {
   }
 
   handleOnClick() {
+    
     EventBus.emit(EventBus.tag.dog,
       {
         msg:'Bark, bark!'

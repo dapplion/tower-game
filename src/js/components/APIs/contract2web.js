@@ -1,33 +1,57 @@
-import contract from './kSpecs';
 import { getCount, getDxs, getW } from './contractSimulation';
 import EventBus from 'EventBusAlias';
-
-// import isEqual from './../lib/isEqual';
-
+import AppStore from 'Store';
+import * as AppActions from 'Action';
 
 // ###########################################
 // Refactoried YES
 // AMDed       YES
 // Tested      UNABLE - too many dependencies (web3)
 
-var useFakeContract = false;
+// Define internal state
+var cxnStatus = AppStore.getCxnStatus();
+// Update internal state
+AppStore.on(AppStore.tag.CXN.CHANGE, function(){
+  cxnStatus = AppStore.getCxnStatus();
+  let loop;
+  let updateInterval = 1000/10;
+  // Stop the loop
+  clearInterval(loop);
+  // Check if connection is active
+  if (cxnStatus.active
+    && cxnStatus.contractAddress
+    && cxnStatus.contract) {
+    // console.log('CONEXION ACTIVE, FETCHING STATS ',cxnStatus)
+    // Create the function map
+    let callFunctionsMap = createCallFunctionsMap(cxnStatus.contract);
+    // Get constants
+    getConstants(callFunctionsMap);
+    // Start stats loop
+    getStats(callFunctionsMap);
+    // loop = setInterval(function(){
+    //   getStats(callFunctionsMap);
+    // }, updateInterval);
+  }
+});
 
-// Implement the fake contract
-var functionMap;
-if(useFakeContract){
-  // Contract simulation
-  functionMap = {
-      count: getCount,
-      dxs: getDxs,
-      W: getW
-  };
-} else {
-  // Real web3 functions
-  functionMap = {
-      count: contract.coinCount,
-      dxs: contract.getCoinPositionsArray,
-      W: contract.coinWidth
-  };
+var useFakeContract = false;
+function createCallFunctionsMap(contractInstance){
+  if(useFakeContract){
+    // Contract simulation
+    return {
+        count: getCount,
+        dxs: getDxs,
+        W: getW
+    };
+  } else {
+    // Real web3 functions
+    return {
+      count: contractInstance.methods.coinCount().call,
+      dxs: contractInstance.methods.getCoinPositionsArray().call,
+      coinWidth: contractInstance.methods.coinWidth().call,
+      playPrice: contractInstance.methods.playPrice().call
+    };
+  }
 }
 
 function arrayIsDiff(array1, array2) {
@@ -44,69 +68,86 @@ function arrayIsDiff(array1, array2) {
   return false;
 }
 
+
 var handler = {
   // Initialize variables
-  dxs : [],
-  count : 0,
-  W : 0,
-  // Define handlers
-  // Track changes and if so, publish an update event
-  handleDxs : function(dxsNew) {
-    if (arrayIsDiff(this.dxs, dxsNew)){
-      this.dxs = dxsNew;
-      EventBus.emit(EventBus.tag.dxsUpdate, dxsNew.slice());
+  state: AppStore.getGameStatus(),
+  // gameUpdate
+  handleDxs : function(newValueUnparsed) {
+    let newValue = parse.dxs(newValueUnparsed)
+    if (arrayIsDiff(handler.state.coinPositionsArray, newValue)){
+      handler.state.coinPositionsArray = newValue;
+      handler.update();
     }
   },
-  handleCount : function(countNew) {
-    if (this.count != countNew){
-      this.count = countNew;
-      EventBus.emit(EventBus.tag.countUpdate,countNew);
+  handleCount : function(newValueUnparsed) {
+    let newValue = parse.count(newValueUnparsed)
+    if (handler.state.coinCount != newValue){
+      handler.state.coinCount = newValue;
+      handler.update();
     }
   },
-  handleW : function(Wnew) {
-    if (this.W != Wnew){
-      this.W = Wnew;
-      EventBus.emit('WUpdate', Wnew);
+  handleW : function(newValueUnparsed) {
+    let newValue = parse.coinWidth(newValueUnparsed)
+    if (handler.state.coinWidth != newValue){
+      handler.state.coinWidth = newValue;
+      handler.update();
     }
   },
+  handlePlayPrice : function(newValueUnparsed) {
+    let newValue = parse.playPrice(newValueUnparsed)
+    if (handler.state.playPrice != newValue){
+      handler.state.playPrice = newValue;
+      handler.update();
+    }
+  },
+  update: function() {
+    AppActions.gameUpdate({
+      coinCount: handler.state.coinCount,
+      coinWidth: handler.state.coinWidth,
+      coinPositionsArray: handler.state.coinPositionsArray.slice(),
+      playPrice: handler.state.playPrice
+    });
+  }
 }
 
-var parser = {
-  parseDxs : function(dxsUnparsed) {
+var parse = {
+  dxs : function(dxsUnparsed) {
       return JSON.parse("[" + String(dxsUnparsed) + "]");
   },
-  parseCount : function(countUnparsed) {
+  count : function(countUnparsed) {
       return parseInt(countUnparsed);
   },
-  parseW : function(WUnparsed) {
+  coinWidth : function(WUnparsed) {
       return parseFloat(WUnparsed);
+  },
+  playPrice : function(playPriceUnparsed) {
+      return parseInt(playPriceUnparsed);
   }
 }
 
-// Define a generic Promise
-function getterPromise(getter) {
-    return new Promise(function(resolve, reject){
-        getter((err, res) => {
-            if(err) reject('Error with < '+String(getter)+' > : '+err);
-            else resolve(res);
-        });
-    });
+function getStats(callFunctionsMap) {
+  callFunctionsMap.dxs()
+  .then(handler.handleDxs)
+  .catch(function(err){
+    console.log('DXS fetch ERROR, '+err)
+  });
+  callFunctionsMap.count()
+  .then(handler.handleCount)
+  .catch(function(err){
+    console.log('Count fetch ERROR, '+err)
+  });
 }
 
-export function getStats() {
-    getterPromise(functionMap.dxs).then(function(dxsUnparsed){
-      handler.handleDxs(parser.parseDxs(dxsUnparsed));
-      return getterPromise(functionMap.count)
-    }).then(function(countUnparsed){
-      handler.handleCount(parser.parseCount(countUnparsed));
-    }).catch(function(err){
-      console.log('ERROR updating game stat, err = '+err)
-    });
-  }
-export function getConstants() {
-    getterPromise(functionMap.W).then(function(WUnparsed){
-      handler.handleW(parser.parseW(WUnparsed));
-    }).catch(function(err){
-      console.log('ERROR updating game consts, err = '+err)
-    });
-  }
+function getConstants(callFunctionsMap) {
+  callFunctionsMap.coinWidth()
+  .then(handler.handleW)
+  .catch(function(err){
+    console.log('W fetch ERROR, '+err)
+  });
+  callFunctionsMap.playPrice()
+  .then(handler.handlePlayPrice)
+  .catch(function(err){
+    console.log('W fetch ERROR, '+err)
+  });
+}
