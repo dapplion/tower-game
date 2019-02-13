@@ -1,5 +1,5 @@
-var EthereumTower = artifacts.require("EthereumTower");
+const TowerGame = artifacts.require("TowerGame");
 
 module.exports = function(deployer) {
-  deployer.deploy(EthereumTower);
+  deployer.deploy(TowerGame);
 };
