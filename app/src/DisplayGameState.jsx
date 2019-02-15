@@ -1,5 +1,6 @@
 import React from "react";
 import { connect } from "react-redux";
+import { updateDx } from "./actions";
 import { createStructuredSelector } from "reselect";
 import { Stage, Layer, Rect, Text } from "react-konva";
 import Konva from "konva";
@@ -23,7 +24,7 @@ const Base = props => (
   />
 );
 
-class ColoredRect extends React.Component {
+class GameRect extends React.Component {
   state = {
     color: "yellow"
   };
@@ -63,7 +64,10 @@ function computeScale() {
 class DisplayGameState extends React.Component {
   constructor(props) {
     super(props);
-    this.state = { stageWidth: computeWidth(), stageScale: computeScale() };
+    this.state = {
+      stageWidth: computeWidth(),
+      stageScale: computeScale()
+    };
   }
 
   fitStageIntoParentContainer() {
@@ -77,8 +81,8 @@ class DisplayGameState extends React.Component {
     );
   }
   render() {
-    console.log(this.state);
     // Positions array
+    const gameStateLoaded = Array.isArray(this.props.gameState);
     const gameState = this.props.gameState || [];
     // Size constants
     const canvasMaxWidth = 600;
@@ -101,7 +105,13 @@ class DisplayGameState extends React.Component {
     const startingY = canvasHeight - baseHeight;
     const startingX = canvasWidth / stageScale / 2;
 
-    console.log({ gameState });
+    const lastRectX =
+      startingX + halfWidth * gameState[gameState.length - 1] - width / 2;
+    const boundRight = lastRectX + halfWidth;
+    const boundLeft = lastRectX - halfWidth;
+    const topReactY = 70;
+    const dx = this.props.dx > 1 ? 1 : this.props.dx < -1 ? -1 : this.props.dx;
+
     return (
       <div>
         <Stage
@@ -115,6 +125,7 @@ class DisplayGameState extends React.Component {
           scaleX={stageScale}
           scaleY={stageScale}
         >
+          {/* Sky, background color */}
           <Layer>
             <BackgroundGradient
               width={canvasMaxWidth}
@@ -123,6 +134,7 @@ class DisplayGameState extends React.Component {
               top={"#2bc0e4"}
             />
           </Layer>
+          {/* Ground base */}
           <Layer>
             <Base
               x={startingX - width / 2}
@@ -131,9 +143,10 @@ class DisplayGameState extends React.Component {
               height={-baseHeight + height}
             />
           </Layer>
+          {/* All static coins */}
           <Layer>
             {gameState.map((x, i) => (
-              <ColoredRect
+              <GameRect
                 key={i}
                 x={startingX + halfWidth * x - width / 2}
                 y={startingY - i * height}
@@ -142,6 +155,49 @@ class DisplayGameState extends React.Component {
               />
             ))}
           </Layer>
+
+          <Layer>
+            {/* Rectangle hovering, dragable to select a dx */}
+            {gameStateLoaded ? (
+              <GameRect
+                x={lastRectX + (dx || 0) * halfWidth}
+                y={topReactY}
+                width={width}
+                height={height}
+                draggable
+                onDragStart={e => {
+                  this.setState({ isDragging: true });
+                }}
+                onDragEnd={e => {
+                  this.setState({ isDragging: false });
+                  this.props.updateDx(
+                    (e.target._lastPos.x - lastRectX) / halfWidth
+                  );
+                }}
+                dragBoundFunc={pos => ({
+                  x:
+                    pos.x > boundRight
+                      ? boundRight
+                      : pos.x < boundLeft
+                      ? boundLeft
+                      : pos.x,
+                  y: topReactY
+                })}
+              />
+            ) : null}
+
+            {/* Text helper, only shows if the rectanlge is being dragged */}
+            {this.state.isDragging ? (
+              <Text
+                text="Drop to select a position"
+                fontSize={18}
+                x={canvasWidth / 2 - 80 * stageScale}
+                y={topReactY / 2 - 10}
+                shadowBlur={5}
+                fill={"white"}
+              />
+            ) : null}
+          </Layer>
         </Stage>
       </div>
     );
@@ -149,10 +205,13 @@ class DisplayGameState extends React.Component {
 }
 
 const mapStateToProps = createStructuredSelector({
-  gameState: state => state.gameState
+  gameState: state => state.gameState,
+  dx: state => state.dx
 });
 
-const mapDispatchToProps = {};
+const mapDispatchToProps = {
+  updateDx
+};
 
 export default connect(
   mapStateToProps,

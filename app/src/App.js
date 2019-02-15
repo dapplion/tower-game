@@ -2,8 +2,8 @@ import React, { Component } from "react";
 import "./App.css";
 import Header from "./Header";
 import DisplayGameState from "./DisplayGameState";
-import DisplayNetworkState from "./DisplayNetworkState";
 import ExecutePlay from "./ExecutePlay";
+import DisplayResults from "./DisplayResults";
 
 class App extends Component {
   render() {
@@ -11,11 +11,9 @@ class App extends Component {
       <div className="App">
         <Header />
         <header className="App-header">
-          <h5>Ethereum Tower Game</h5>
-
-          <DisplayNetworkState />
           <DisplayGameState />
           <ExecutePlay />
+          <DisplayResults />
         </header>
       </div>
     );

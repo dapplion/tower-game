@@ -1,20 +1,24 @@
 import web3 from "./web3";
 import towerGame from "../contracts/TowerGame.json";
 import networks from "./networks.json";
-import { put } from "./connectToStore";
+import { put } from "../connectToStore";
 import TowerGameInstance from "./TowerGameInstance";
 
 let towerGameInstance;
+let previousGameState = [];
 
 async function updateState() {
   if (!towerGameInstance) throw Error("towerGameInstance is not defined");
   const gameState = await towerGameInstance.getState();
-  put({ type: "UPDATE_GAME_STATE", gameState });
+  // Prevent useless updates
+  if (areFloatArraysEqual(gameState, previousGameState))
+    put({ type: "UPDATE_GAME_STATE", gameState });
+  previousGameState = gameState;
 }
 
 async function subscribeToStateChanges() {
-  towerGameInstance.subscribeToResults((error, event) => {
-    console.log("new event", { event, error }); // same results as the optional callback above
+  towerGameInstance.subscribeToResults(event => {
+    put({ type: "UPDATE_RESULTS", id: event.transactionHash, data: event });
     updateState();
   });
 }
@@ -52,8 +56,19 @@ async function run() {
   // To create an instance, towerGame.abi + towerGame.networks[networkId].address
   towerGameInstance = new TowerGameInstance(networkGameAddress);
 
-  updateState();
+  await updateState();
   subscribeToStateChanges();
+}
+
+// Utility
+function areFloatArraysEqual(arr1, arr2) {
+  const tf = x => (x ? x.toFixed(10) : x);
+  for (let i = arr1.length - 1; i >= 0; i--) {
+    if (tf(arr1[i].toF) !== tf(arr2[i])) {
+      return false;
+    }
+  }
+  return true;
 }
 
 export default {

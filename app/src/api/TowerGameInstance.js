@@ -52,11 +52,34 @@ function TowerGameInstance(address) {
   }
 
   /**
-   *
+   * Subscribes to PlayResult events
+   * {
+   *    blockNumber: 10368774,
+   *    returnValues: {
+   *      coinCount: "2",
+   *      dx: "-45000",
+   *      fallingCoins: "2",
+   *      player: "0x204A1159f..."
+   *    }
+   *  }
    * @param {Function} cb (error, event) => {}
    */
   function subscribeToResults(cb) {
-    towerGameInstance.events.PlayResult({ fromBlock: 0 }, cb);
+    towerGameInstance.events.PlayResult({ fromBlock: 0 }, (error, event) => {
+      if (error) console.error("Error getting PlayResult event", error);
+      else
+        web3.eth.getBlock(event.blockNumber).then(block => {
+          cb({
+            fallingCoins: event.returnValues.fallingCoins,
+            coinCount: event.returnValues.coinCount,
+            dx: parseInt(event.returnValues.dx) / width,
+            player: event.returnValues.player,
+            blockNumber: event.blockNumber,
+            timestamp: block.timestamp,
+            transactionHash: event.transactionHash
+          });
+        });
+    });
   }
 
   return {
