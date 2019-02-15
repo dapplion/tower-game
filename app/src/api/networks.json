@@ -1,0 +1,42 @@
+{
+  "0": {
+    "name": "Olympic",
+    "desc": "Ethereum public pre-release testnet"
+  },
+  "1": {
+    "name": "Mainnet",
+    "desc": "Ethereum public main network"
+  },
+  "2": {
+    "name": "Morden",
+    "desc": "Public Ethereum testnet, now Ethereum Classic testnet"
+  },
+  "3": {
+    "name": "Ropsten",
+    "desc": "Public cross-client Ethereum testnet"
+  },
+  "4": {
+    "name": "Rinkeby",
+    "desc": "Public Geth PoA testnet"
+  },
+  "42": {
+    "name": "Kovan",
+    "desc": "Public Parity PoA testnet"
+  },
+  "77": {
+    "name": "Sokol",
+    "desc": "Public POA Network testnet"
+  },
+  "99": {
+    "name": "Core",
+    "desc": "Public POA Network main network"
+  },
+  "100": {
+    "name": "xDai",
+    "desc": "Public MakerDAO/POA Network main network"
+  },
+  "5777": {
+    "name": "Ganache",
+    "desc": "Private ephemeral test network"
+  }
+}
