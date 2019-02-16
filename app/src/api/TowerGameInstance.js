@@ -11,6 +11,9 @@ const cumsum = arr => {
 
 // To create an instance, towerGame.abi + towerGame.networks[networkId].address
 function TowerGameInstance(address) {
+  if (!address)
+    throw Error("Initializing tower game instance without an address");
+  else console.log(`Initializing a tower game instance with ${address}`);
   const towerGameInstance = new web3.eth.Contract(towerGame.abi, address);
   let initialized;
   let playPriceWei;
@@ -19,16 +22,21 @@ function TowerGameInstance(address) {
   /**
    * Fetch init settings
    */
-  async function initSettings() {
-    playPriceWei = await towerGameInstance.methods.playPrice().call();
-    width = await towerGameInstance.methods.width().call();
+  async function getInitSettings() {
+    const [_playPriceWei, _width] = await Promise.all([
+      towerGameInstance.methods.playPrice().call(),
+      towerGameInstance.methods.width().call()
+    ]);
+    playPriceWei = _playPriceWei;
+    width = _width;
+    return { playPriceWei: _playPriceWei, width: _width };
   }
 
   /**
    * Fetch the positions and compute the cummulative
    */
   async function getState() {
-    if (!initialized) await initSettings();
+    if (!initialized) await getInitSettings();
     const relativePositions = await towerGameInstance.methods
       .getCoinPositionsArray()
       .call();
@@ -41,10 +49,10 @@ function TowerGameInstance(address) {
    * @param {Float} dx relative dx unscaled: -1 < dx < 1
    * @param {String} account ethereum account
    */
-  async function play(dx, account) {
+  function play(dx, account) {
     if (Math.abs(dx) > 1) throw Error("dx must be > -1 and < 1");
     const dxScaled = dx * width;
-    return await towerGameInstance.methods.play(dxScaled).send({
+    return towerGameInstance.methods.play(dxScaled).send({
       from: account,
       value: playPriceWei,
       gas: 100000
@@ -65,28 +73,51 @@ function TowerGameInstance(address) {
    * @param {Function} cb (error, event) => {}
    */
   function subscribeToResults(cb) {
-    towerGameInstance.events.PlayResult({ fromBlock: 0 }, (error, event) => {
+    towerGameInstance.events.PlayResult({}, (error, event) => {
       if (error) console.error("Error getting PlayResult event", error);
       else
-        web3.eth.getBlock(event.blockNumber).then(block => {
-          cb({
-            fallingCoins: event.returnValues.fallingCoins,
-            coinCount: event.returnValues.coinCount,
-            dx: parseInt(event.returnValues.dx) / width,
-            player: event.returnValues.player,
-            blockNumber: event.blockNumber,
-            timestamp: block.timestamp,
-            transactionHash: event.transactionHash
-          });
+        cb({
+          fallingCoins: event.returnValues.fallingCoins,
+          coinCount: event.returnValues.coinCount,
+          dx: parseInt(event.returnValues.dx) / width,
+          player: event.returnValues.player,
+          blockNumber: event.blockNumber,
+          timestamp: Math.floor(Date.now() / 1000),
+          date: new Date().toGMTString(),
+          hash: event.transactionHash
         });
     });
   }
 
+  async function getPastResults() {
+    const events = await towerGameInstance.getPastEvents("PlayResult", {
+      fromBlock: 0
+    });
+    const eventsIndexed = {};
+    await Promise.all(
+      events.map(async event => {
+        const block = await web3.eth.getBlock(event.blockNumber);
+        eventsIndexed[event.transactionHash] = {
+          fallingCoins: event.returnValues.fallingCoins,
+          coinCount: event.returnValues.coinCount,
+          dx: parseInt(event.returnValues.dx) / width,
+          player: event.returnValues.player,
+          blockNumber: event.blockNumber,
+          timestamp: block.timestamp,
+          date: new Date(block.timestamp * 1000).toGMTString(),
+          hash: event.transactionHash
+        };
+      })
+    );
+    return eventsIndexed;
+  }
+
   return {
     getState,
-    initSettings,
+    getInitSettings,
     play,
-    subscribeToResults
+    subscribeToResults,
+    getPastResults
   };
 }
 

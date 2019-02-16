@@ -4,7 +4,9 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "truffle test && npm run copy",
+    "migrate": "truffle migrate && npm run copy",
+    "copy": "rm -rf app/src/contracts && cp -rf build/contracts app/src/contracts",
     "deploy:generic": "source ./conf/tokens && truffle compile && truffle migrate --network",
     "deploy:ropsten": "npm run deploy:generic ropsten",
     "deploy:kovan": "npm run deploy:generic kovan"

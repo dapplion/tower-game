@@ -18,9 +18,14 @@ async function updateState() {
 
 async function subscribeToStateChanges() {
   towerGameInstance.subscribeToResults(event => {
-    put({ type: "UPDATE_RESULTS", id: event.transactionHash, data: event });
+    put({ type: "UPDATE_RESULTS", data: { [event.transactionHash]: event } });
     updateState();
   });
+}
+
+async function getPastResults() {
+  const eventsIndexed = await towerGameInstance.getPastResults();
+  put({ type: "UPDATE_RESULTS", data: eventsIndexed });
 }
 
 async function play(dx) {
@@ -58,6 +63,7 @@ async function run() {
 
   await updateState();
   subscribeToStateChanges();
+  getPastResults();
 }
 
 // Utility

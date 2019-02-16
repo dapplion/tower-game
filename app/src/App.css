@@ -21,3 +21,23 @@
     transform: rotate(360deg);
   }
 }
+
+.sub-title {
+  color: #4e4e4e;
+}
+
+.sub-sub-title {
+  color: #9e9e9e;
+}
+
+.side-column-controls {
+  max-height: 800px;
+  overflow-y: scroll;
+}
+
+.horizontal-line {
+  padding: 0.4rem 0;
+  margin: 1rem 0;
+  border: 0;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+}

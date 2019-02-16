@@ -1,5 +1,3 @@
-const HDWalletProvider = require("truffle-hdwallet-provider");
-
 module.exports = {
   // See <http://truffleframework.com/docs/advanced/configuration>
   // for more about customizing your Truffle configuration!
@@ -11,6 +9,7 @@ module.exports = {
     },
     ropsten: {
       provider: function() {
+        const HDWalletProvider = require("truffle-hdwallet-provider");
         return new HDWalletProvider(
           process.env.MNEMONIC,
           `https://ropsten.infura.io/v3/${process.env.INFURA_PROJECT_ID}`
@@ -20,6 +19,7 @@ module.exports = {
     },
     kovan: {
       provider: function() {
+        const HDWalletProvider = require("truffle-hdwallet-provider");
         return new HDWalletProvider(
           process.env.MNEMONIC,
           `https://kovan.infura.io/v3/${process.env.INFURA_PROJECT_ID}`

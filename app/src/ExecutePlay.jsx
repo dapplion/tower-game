@@ -1,18 +1,16 @@
 import React from "react";
 import { connect } from "react-redux";
 import { createStructuredSelector } from "reselect";
-import { updateDx } from "./actions";
-import api from "./api";
+import { updateDx, executePlay } from "./actions";
 import InputGroup from "react-bootstrap/InputGroup";
 import FormControl from "react-bootstrap/FormControl";
 import Button from "react-bootstrap/Button";
 
 const inputId = "play-input-position";
 
-const ExecutePlay = ({ dx, updateDx }) => (
-  <div className="mt-3 mb-3">
-    <h3>Execute play</h3>
-    <InputGroup className="mb-3" style={{ width: 400 }}>
+const ExecutePlay = ({ dx, updateDx, executePlay }) => (
+  <div>
+    <InputGroup>
       <FormControl
         id={inputId}
         type="number"
@@ -26,12 +24,7 @@ const ExecutePlay = ({ dx, updateDx }) => (
         }}
       />
       <InputGroup.Append>
-        <Button
-          variant="info"
-          onClick={() => {
-            api.play(document.getElementById(inputId).value);
-          }}
-        >
+        <Button variant="info" onClick={executePlay}>
           Play
         </Button>
       </InputGroup.Append>
@@ -44,7 +37,8 @@ const mapStateToProps = createStructuredSelector({
 });
 
 const mapDispatchToProps = {
-  updateDx
+  updateDx,
+  executePlay
 };
 
 export default connect(

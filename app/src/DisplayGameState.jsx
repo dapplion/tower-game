@@ -5,6 +5,8 @@ import { createStructuredSelector } from "reselect";
 import { Stage, Layer, Rect, Text } from "react-konva";
 import Konva from "konva";
 
+const stageWrapperId = "stage-wrapper";
+
 const BackgroundGradient = ({ bottom, top, height, width }) => (
   <Rect
     width={width}
@@ -50,15 +52,17 @@ class GameRect extends React.Component {
 
 // "#2bc0e4", 1, "#eaecc6"
 const canvasMaxWidth = 600;
+function getContainerWidth() {
+  return (document.getElementById(stageWrapperId) || {}).offsetWidth || 0;
+  // return window.innerWidth
+}
 function computeWidth() {
-  return window.innerWidth < canvasMaxWidth
-    ? window.innerWidth
-    : canvasMaxWidth;
+  const containerWidth = getContainerWidth();
+  return containerWidth < canvasMaxWidth ? containerWidth : canvasMaxWidth;
 }
 function computeScale() {
-  return window.innerWidth < canvasMaxWidth
-    ? window.innerWidth / canvasMaxWidth
-    : 1;
+  const containerWidth = getContainerWidth();
+  return containerWidth < canvasMaxWidth ? containerWidth / canvasMaxWidth : 1;
 }
 
 class DisplayGameState extends React.Component {
@@ -79,13 +83,13 @@ class DisplayGameState extends React.Component {
       "resize",
       this.fitStageIntoParentContainer.bind(this)
     );
+    this.fitStageIntoParentContainer.bind(this)();
   }
   render() {
     // Positions array
     const gameStateLoaded = Array.isArray(this.props.gameState);
     const gameState = this.props.gameState || [];
     // Size constants
-    const canvasMaxWidth = 600;
     const canvasMaxHeight = 800;
 
     const width = 200;
@@ -113,7 +117,10 @@ class DisplayGameState extends React.Component {
     const dx = this.props.dx > 1 ? 1 : this.props.dx < -1 ? -1 : this.props.dx;
 
     return (
-      <div>
+      <div
+        id={stageWrapperId}
+        style={{ justifyContent: "center", display: "flex" }}
+      >
         <Stage
           style={{
             padding: 0,
