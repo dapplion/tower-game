@@ -12,15 +12,15 @@ import DisplayResults from "./DisplayResults";
 class App extends Component {
   render() {
     return (
-      <div className="App">
+      <div className="app">
         <Header />
-        <header className="App-header">
+        <div className="app-body">
           <Container className="mt-4 mb-5">
             <Row>
-              <Col sm={7}>
+              <Col sm={7} className="mb-4">
                 <DisplayGameState />
               </Col>
-              <Col sm={5} className="side-column-controls">
+              <Col sm={5} className="mb-4 side-column-controls">
                 <div>
                   <GeneralFeedback />
                 </div>
@@ -37,7 +37,7 @@ class App extends Component {
               </Col>
             </Row>
           </Container>
-        </header>
+        </div>
       </div>
     );
   }

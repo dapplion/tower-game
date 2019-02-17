@@ -80,7 +80,7 @@ function TowerGameInstance(address) {
           fallingCoins: event.returnValues.fallingCoins,
           coinCount: event.returnValues.coinCount,
           dx: parseInt(event.returnValues.dx) / width,
-          player: event.returnValues.player,
+          player: parsePlayer(event),
           blockNumber: event.blockNumber,
           timestamp: Math.floor(Date.now() / 1000),
           date: new Date().toGMTString(),
@@ -93,6 +93,7 @@ function TowerGameInstance(address) {
     const events = await towerGameInstance.getPastEvents("PlayResult", {
       fromBlock: 0
     });
+    console.log({ events });
     const eventsIndexed = {};
     await Promise.all(
       events.map(async event => {
@@ -101,7 +102,7 @@ function TowerGameInstance(address) {
           fallingCoins: event.returnValues.fallingCoins,
           coinCount: event.returnValues.coinCount,
           dx: parseInt(event.returnValues.dx) / width,
-          player: event.returnValues.player,
+          player: parsePlayer(event),
           blockNumber: event.blockNumber,
           timestamp: block.timestamp,
           date: new Date(block.timestamp * 1000).toGMTString(),
@@ -110,6 +111,18 @@ function TowerGameInstance(address) {
       })
     );
     return eventsIndexed;
+  }
+
+  /**
+   * For some wierd reason the indexed logged value "player" is not correctly parsed
+   * and returns always the same address
+   * @param {Object} event
+   */
+  function parsePlayer(event) {
+    const secondTopic = event.raw.topics[1];
+    return secondTopic
+      ? "0x" + secondTopic.slice(2 + 2 * (32 - 20))
+      : event.returnValues.player;
   }
 
   return {

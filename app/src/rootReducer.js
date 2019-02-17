@@ -1,5 +1,11 @@
 import { combineReducers } from "redux";
 
+const demoResults = {
+  '0x2734h2h3b4j2h3b4jh23b4jh23': {
+    hash: '0x234u234ib23h4bhj23'
+  }
+}
+
 // Define global reducers. This live outside from the module construction
 const globalReducers = {
   towerGameInstance: (state = null, action) => {
@@ -26,7 +32,7 @@ const globalReducers = {
         return state;
     }
   },
-  results: (state = {}, action) => {
+  results: (state = {...demoResults}, action) => {
     switch (action.type) {
       case "UPDATE_RESULTS":
         return {

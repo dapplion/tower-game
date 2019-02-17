@@ -7,35 +7,48 @@ import TowerGameInstance from "./api/TowerGameInstance";
 import { updateFeedbackError, updateFeedbackInfo } from "./actions";
 
 function* updateState() {
-  const towerGameInstance = yield select(state => state.towerGameInstance);
-  if (!towerGameInstance) throw Error("towerGameInstance is not defined");
-  const previousGameState = yield select(state => state.gameState);
-  const gameState = yield call(towerGameInstance.getState);
-  // Prevent useless updates
-  if (!areFloatArraysEqual(gameState, previousGameState)) {
-    yield put({ type: "UPDATE_GAME_STATE", gameState });
+  try {
+    const towerGameInstance = yield select(state => state.towerGameInstance);
+    if (!towerGameInstance) throw Error("towerGameInstance is not defined");
+    const previousGameState = yield select(state => state.gameState);
+    const gameState = yield call(towerGameInstance.getState);
+    // Prevent useless updates
+    if (!areFloatArraysEqual(gameState, previousGameState)) {
+      yield put({ type: "UPDATE_GAME_STATE", gameState });
+    } else {
+      console.log("Updating state but state is the same ", {
+        previousGameState,
+        gameState
+      });
+    }
+  } catch (e) {
+    console.error(`Error on updateState: ${e.stack}`);
   }
 }
 
 function* subscribeToStateChanges() {
-  const towerGameInstance = yield select(state => state.towerGameInstance);
-  if (!towerGameInstance) throw Error("towerGameInstance is not defined");
-  const subscriptionChannel = eventChannel(emit => {
-    towerGameInstance.subscribeToResults(emit);
-    return function unsubscribe() {};
-  });
-  while (true) {
-    try {
-      const event = yield take(subscriptionChannel);
-      console.log("Received state changed event", event);
-      yield put({
-        type: "UPDATE_RESULTS",
-        data: { [event.hash]: event }
-      });
-      yield fork(updateState);
-    } catch (err) {
-      console.error("subscriptionChannel error:", err);
+  try {
+    const towerGameInstance = yield select(state => state.towerGameInstance);
+    if (!towerGameInstance) throw Error("towerGameInstance is not defined");
+    const subscriptionChannel = eventChannel(emit => {
+      towerGameInstance.subscribeToResults(emit);
+      return function unsubscribe() {};
+    });
+    while (true) {
+      try {
+        const event = yield take(subscriptionChannel);
+        console.log("Received state changed event", event);
+        yield put({
+          type: "UPDATE_RESULTS",
+          data: { [event.hash]: event }
+        });
+        yield fork(updateState);
+      } catch (err) {
+        console.error("subscriptionChannel error:", err);
+      }
     }
+  } catch (e) {
+    console.error(`Error on subscribeToStateChanges: ${e.stack}`);
   }
 }
 
@@ -87,61 +100,62 @@ function* initialize() {
     yield put(updateFeedbackInfo("Updated game state!"));
     // Fetch old events
     const eventsIndexed = yield call(towerGameInstance.getPastResults);
+    console.log(Object.values(eventsIndexed));
     yield put({ type: "UPDATE_RESULTS", data: eventsIndexed });
     // Subscribe to new events
     yield fork(subscribeToStateChanges);
   } catch (e) {
-    console.error(`Error fetching initial state: ${e.stack}`);
+    console.error(`Error on initialize: ${e.stack}`);
   }
 }
 
 function* executePlay() {
-  // Get contract instance
-  const towerGameInstance = yield select(state => state.towerGameInstance);
-  if (!towerGameInstance) throw Error("towerGameInstance is not defined");
-  // Enable accounts
-  if (window.ethereum && window.ethereum.enable) {
-    yield call(window.ethereum.enable);
-  }
-  const accounts = yield call(web3.eth.getAccounts);
-  const account = accounts[0];
-  // Get dx value
-  const dx = yield select(state => state.dx);
-  const width = yield select(state => (state.gameSettings || {}).width);
-
-  const txChannel = eventChannel(emit => {
-    towerGameInstance
-      .play(dx, account)
-      .on("transactionHash", hash => {
-        emit({ hash });
-      })
-      .on("confirmation", confirmationNumber => {
-        emit({ confirmationNumber });
-      })
-      .on("receipt", receipt => {
-        console.log(`Play w/ dx ${dx} receipt`, receipt);
-        const event = receipt.events.PlayResult || {};
-        emit({
-          ...parsePlayResultEvent(event, width),
-          timestamp: Math.floor(Date.now() / 1000),
-          gasUsed: receipt.gasUsed
-        });
-      })
-      .on("error", error => {
-        emit({ error });
-      });
-    return function unsubscribe() {};
-  });
-  let hash;
-  while (true) {
-    try {
-      const data = yield take(txChannel);
-      if (data.hash) hash = data.hash;
-      yield put({ type: "UPDATE_RESULTS", data: { [hash]: data } });
-      console.log(`tx update ${hash}`, data);
-    } catch (err) {
-      console.error("subscriptionChannel error:", err);
+  try {
+    // Get contract instance
+    const towerGameInstance = yield select(state => state.towerGameInstance);
+    if (!towerGameInstance) throw Error("towerGameInstance is not defined");
+    // Enable accounts
+    if (window.ethereum && window.ethereum.enable) {
+      yield call(window.ethereum.enable);
     }
+    const accounts = yield call(web3.eth.getAccounts);
+    const account = accounts[0];
+    // Get dx value
+    const dx = yield select(state => state.dx);
+    const width = yield select(state => (state.gameSettings || {}).width);
+
+    const txChannel = eventChannel(emit => {
+      towerGameInstance
+        .play(dx, account)
+        .on("transactionHash", hash => {
+          // Store initial state in the store to show in the UI
+          emit({ hash, player: account, dx });
+        })
+        .on("confirmation", (confirmationNumber, receipt) => {
+          emit({ confirmationNumber, ...parseReceipt(receipt, width) });
+        })
+        .on("receipt", receipt => {
+          emit(parseReceipt(receipt, width));
+        })
+        .on("error", error => {
+          emit({ error });
+        });
+      return function unsubscribe() {};
+    });
+
+    let hash;
+    while (true) {
+      try {
+        const data = yield take(txChannel);
+        if (data.hash) hash = data.hash;
+        yield put({ type: "UPDATE_RESULTS", data: { [hash]: data } });
+        console.log(`tx update ${hash}`, data);
+      } catch (err) {
+        console.error("subscriptionChannel error:", err);
+      }
+    }
+  } catch (e) {
+    console.error(`Error on executePlay: ${e.stack}`);
   }
 }
 
@@ -164,6 +178,16 @@ function areFloatArraysEqual(arr1, arr2) {
     }
   }
   return true;
+}
+
+function parseReceipt(receipt, width) {
+  // PlayResult event may not be available
+  const event = (receipt.events || {}).PlayResult;
+  return {
+    ...(event ? parsePlayResultEvent(event, width) : {}),
+    timestamp: Math.floor(Date.now() / 1000),
+    gasUsed: receipt.gasUsed
+  };
 }
 
 function parsePlayResultEvent(event, width) {

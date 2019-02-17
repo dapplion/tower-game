@@ -1,33 +1,39 @@
-.App {
+.app {
   text-align: center;
 }
 
-.App-header {
+/* General APP styles */
+
+.sub-title {
+  color: #4a4f55;
+}
+
+.sub-sub-title {
+  color: #919ba7;
+}
+
+.app-header {
+  background-color: white !important;
+  box-shadow: 0 0.5rem 1.2rem #bdc5d133;
+}
+
+.app-body {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
+  background-color: #f8f9fa;
 }
 
-.App-link {
-  color: #61dafb;
+.app-card {
+  box-shadow: 0 0.2rem 1.2rem #bdc5d133;
 }
 
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
-}
+/* Small details / layout */
 
-.sub-title {
-  color: #4e4e4e;
-}
-
-.sub-sub-title {
-  color: #9e9e9e;
+canvas {
+  border: 1px solid #dfdfdf !important;
+  /* box-shadow: 0 0.2rem 1.2rem #bdc5d133; */
 }
 
 .side-column-controls {
@@ -40,4 +46,61 @@
   margin: 1rem 0;
   border: 0;
   border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+/* Edits bootstrap default */
+
+.card-body {
+  padding: 1rem 1.25rem !important;
+}
+.won {
+  background: #f2ffd8; /* Old browsers */
+  background: -moz-linear-gradient(
+    left,
+    #f2ffd8 0%,
+    #ffffff 100%
+  ); /* FF3.6-15 */
+  background: -webkit-linear-gradient(
+    left,
+    #f2ffd8 0%,
+    #ffffff 100%
+  ); /* Chrome10-25,Safari5.1-6 */
+  background: linear-gradient(
+    to right,
+    #f2ffd8 0%,
+    #ffffff 100%
+  ); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
+  filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#f2ffd8', endColorstr='#ffffff',GradientType=1 ); /* IE6-9 */
+}
+
+/* Animations */
+
+.pending {
+  animation: pulse-opacity 1s infinite ease-in-out;
+  -webkit-animation: pulse-opacity 1s infinite ease-in-out;
+  --opacity-from: 0.2;
+  --opacity-to: 1;
+}
+
+@keyframes pulse-opacity {
+  0% {
+    opacity: var(--opacity-from);
+  }
+  50% {
+    opacity: var(--opacity-to);
+  }
+  100% {
+    opacity: var(--opacity-from);
+  }
+}
+@-webkit-keyframes pulse-opacity {
+  0% {
+    opacity: var(--opacity-from);
+  }
+  50% {
+    opacity: var(--opacity-to);
+  }
+  100% {
+    opacity: var(--opacity-from);
+  }
 }

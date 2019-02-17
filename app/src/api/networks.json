@@ -5,7 +5,8 @@
   },
   "1": {
     "name": "Mainnet",
-    "desc": "Ethereum public main network"
+    "desc": "Ethereum public main network",
+    "link": "https://etherscan.io/tx/"
   },
   "2": {
     "name": "Morden",
@@ -13,15 +14,18 @@
   },
   "3": {
     "name": "Ropsten",
-    "desc": "Public cross-client Ethereum testnet"
+    "desc": "Public cross-client Ethereum testnet",
+    "link": "https://ropsten.etherscan.io/tx/"
   },
   "4": {
     "name": "Rinkeby",
-    "desc": "Public Geth PoA testnet"
+    "desc": "Public Geth PoA testnet",
+    "link": "https://rinkeby.etherscan.io/tx/"
   },
   "42": {
     "name": "Kovan",
-    "desc": "Public Parity PoA testnet"
+    "desc": "Public Parity PoA testnet",
+    "link": "https://kovan.etherscan.io/tx/"
   },
   "77": {
     "name": "Sokol",

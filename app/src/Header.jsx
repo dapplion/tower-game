@@ -6,7 +6,7 @@ import Navbar from "react-bootstrap/Navbar";
 const Header = ({ network }) => (
   <Navbar
     bg="light"
-    className="justify-content-between"
+    className="justify-content-between app-header"
     style={{ borderBottom: "1px solid #eeeeee" }}
   >
     <Navbar.Brand href="/">Ethereum Tower Game</Navbar.Brand>
