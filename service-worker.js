@@ -14,7 +14,7 @@
 importScripts("https://storage.googleapis.com/workbox-cdn/releases/3.6.3/workbox-sw.js");
 
 importScripts(
-  "/tower-game/precache-manifest.a765db60453030b4af3ceea7d63aa4cb.js"
+  "/tower-game/precache-manifest.fe6802b52ecf3548468b05f2c7b4b7d8.js"
 );
 
 workbox.clientsClaim();

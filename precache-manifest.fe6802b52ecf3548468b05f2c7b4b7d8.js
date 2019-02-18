@@ -8,19 +8,19 @@ self.__precacheManifest = [
     "url": "/tower-game/static/js/runtime~main.ebfe1376.js"
   },
   {
-    "revision": "3270780fc553bcdc2eb9",
-    "url": "/tower-game/static/js/main.3270780f.chunk.js"
+    "revision": "df5aba1b38fc72ba1069",
+    "url": "/tower-game/static/js/main.df5aba1b.chunk.js"
   },
   {
     "revision": "727fbf8a23586ed3efdc",
     "url": "/tower-game/static/js/2.727fbf8a.chunk.js"
   },
   {
-    "revision": "3270780fc553bcdc2eb9",
+    "revision": "df5aba1b38fc72ba1069",
     "url": "/tower-game/static/css/main.9dc875b9.chunk.css"
   },
   {
-    "revision": "56ad36b33d9da7c5b7bc3283dc8bc5d9",
+    "revision": "292606521ed4da81ab21e040bdb80794",
     "url": "/tower-game/index.html"
   }
 ];
