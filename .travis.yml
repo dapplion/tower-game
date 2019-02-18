@@ -7,11 +7,12 @@ install:
   - yarn
 script:
   - yarn run build
+  - gzip -r build
 deploy:
   provider: pages
   skip-cleanup: true
   github-token: $GITHUB_TOKEN # Set in the settings page of your repository, as a secure variable
   keep-history: true
-  local-dir: build
+  local-dir: app/build
   on:
     branch: master
