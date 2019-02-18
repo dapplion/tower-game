@@ -1,15 +1,17 @@
 import React, { Component } from "react";
 import "./App.css";
-import Header from "./Header";
-import Container from "react-bootstrap/Container";
-import Row from "react-bootstrap/Row";
-import Col from "react-bootstrap/Col";
+// Components
+import Header from "./components/Header";
 import GeneralFeedback from "./components/GeneralFeedback";
 import DisplayGameState from "./components/DisplayGameState";
 import ExecutePlay from "./components/ExecutePlay";
 import DisplayResults from "./components/DisplayResults";
 import DisplayBalance from "./components/DisplayBalance";
 import WinModal from "./components/WinModal";
+// Bootstrap
+import Container from "react-bootstrap/Container";
+import Row from "react-bootstrap/Row";
+import Col from "react-bootstrap/Col";
 
 class App extends Component {
   render() {

@@ -31,6 +31,14 @@
   box-shadow: 0 0.2rem 1.2rem #bdc5d133;
 }
 
+.icon {
+  height: 26px;
+  opacity: 0.8;
+  margin-right: 6px;
+  position: relative;
+  bottom: 2px;
+}
+
 /* Small details / layout */
 
 canvas {

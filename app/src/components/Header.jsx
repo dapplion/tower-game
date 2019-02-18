@@ -3,6 +3,7 @@ import { connect } from "react-redux";
 import { createStructuredSelector } from "reselect";
 import Navbar from "react-bootstrap/Navbar";
 import Container from "react-bootstrap/Container";
+import icon from "../img/icon.png";
 
 const Header = ({ network }) => (
   <Navbar
@@ -11,7 +12,11 @@ const Header = ({ network }) => (
     style={{ borderBottom: "1px solid #eeeeee" }}
   >
     <Container className="correct-container-padding">
-      <Navbar.Brand href="/">Ethereum Tower Game</Navbar.Brand>
+      <Navbar.Brand href="/">
+        <div>
+          <img src={icon} alt="icon" className="icon" /> Ethereum Tower Game
+        </div>
+      </Navbar.Brand>
       <Navbar.Text className="float-right">
         {network
           ? `Network: ${network.name} ${
