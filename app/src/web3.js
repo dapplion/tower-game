@@ -6,6 +6,6 @@ const web3 = window.ethereum
   ? new Web3(window.web3.currentProvider) // Legacy dapp browsers
   : null; // Non-dapp browsers
 
-console.log(`Web3 version: ${web3.version}`);
+console.log(web3 ? `Web3 version: ${web3.version}`: 'Metamask is not enabled');
 
 export default web3;
