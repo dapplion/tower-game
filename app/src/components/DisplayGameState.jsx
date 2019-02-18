@@ -1,6 +1,6 @@
 import React from "react";
 import { connect } from "react-redux";
-import { updateDx } from "./actions";
+import { updateDx } from "../actions";
 import { createStructuredSelector } from "reselect";
 import { Stage, Layer, Rect, Text } from "react-konva";
 import Konva from "konva";

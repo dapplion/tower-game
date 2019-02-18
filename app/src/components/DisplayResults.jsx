@@ -1,12 +1,12 @@
 import React from "react";
 import { connect } from "react-redux";
 import { createStructuredSelector } from "reselect";
-import * as s from "./selectors";
+import * as s from "../selectors";
 import Card from "react-bootstrap/Card";
 import TimeAgo from "javascript-time-ago";
 import en from "javascript-time-ago/locale/en";
 import Big from "big.js";
-import nameGenerator from "./randomNameGenerationSource/nameGenerator";
+import nameGenerator from "../randomNameGenerationSource/nameGenerator";
 
 const useNameGenerator = true;
 

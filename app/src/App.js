@@ -4,12 +4,12 @@ import Header from "./Header";
 import Container from "react-bootstrap/Container";
 import Row from "react-bootstrap/Row";
 import Col from "react-bootstrap/Col";
-import GeneralFeedback from "./GeneralFeedback";
-import DisplayGameState from "./DisplayGameState";
-import ExecutePlay from "./ExecutePlay";
-import DisplayResults from "./DisplayResults";
-import DisplayBalance from "./DisplayBalance";
-import WinModal from "./WinModal";
+import GeneralFeedback from "./components/GeneralFeedback";
+import DisplayGameState from "./components/DisplayGameState";
+import ExecutePlay from "./components/ExecutePlay";
+import DisplayResults from "./components/DisplayResults";
+import DisplayBalance from "./components/DisplayBalance";
+import WinModal from "./components/WinModal";
 
 class App extends Component {
   render() {

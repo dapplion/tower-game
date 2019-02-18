@@ -1,8 +1,8 @@
 import { call, fork, put, select, take, takeEvery } from "redux-saga/effects";
 import { eventChannel } from "redux-saga";
-import web3 from "./api/web3";
+import web3 from "./web3";
 import towerGame from "./contracts/TowerGame.json";
-import networks from "./api/networks.json";
+import networks from "./networks.json";
 import * as s from "./selectors";
 import * as a from "./actions";
 import Big from "big.js";

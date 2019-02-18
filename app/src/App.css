@@ -50,6 +50,15 @@ canvas {
   border-bottom: 1px solid rgba(0, 0, 0, 0.1);
 }
 
+.correct-container-padding {
+  padding: 0px 15px !important;
+}
+@media (max-width: 576px) {
+  .correct-container-padding {
+    padding: 0px 0px;
+  }
+}
+
 /* Edits bootstrap default */
 
 .card-body {

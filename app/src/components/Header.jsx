@@ -2,6 +2,7 @@ import React from "react";
 import { connect } from "react-redux";
 import { createStructuredSelector } from "reselect";
 import Navbar from "react-bootstrap/Navbar";
+import Container from "react-bootstrap/Container";
 
 const Header = ({ network }) => (
   <Navbar
@@ -9,14 +10,16 @@ const Header = ({ network }) => (
     className="justify-content-between app-header"
     style={{ borderBottom: "1px solid #eeeeee" }}
   >
-    <Navbar.Brand href="/">Ethereum Tower Game</Navbar.Brand>
-    <Navbar.Text className="float-right">
-      {network
-        ? `Network: ${network.name} ${
-            network.contractAddress ? "" : "(Not supported)"
-          }`
-        : "No network"}
-    </Navbar.Text>
+    <Container className="correct-container-padding">
+      <Navbar.Brand href="/">Ethereum Tower Game</Navbar.Brand>
+      <Navbar.Text className="float-right">
+        {network
+          ? `Network: ${network.name} ${
+              network.contractAddress ? "" : "(Not supported)"
+            }`
+          : "No network"}
+      </Navbar.Text>
+    </Container>
   </Navbar>
 );
 

@@ -1,9 +1,11 @@
 {
   "name": "app",
+  "homepage": "http://dapplion.github.io/tower-game",
   "version": "0.1.0",
   "private": true,
   "dependencies": {
     "bootstrap": "^4.3.1",
+    "gh-pages": "^2.0.1",
     "javascript-time-ago": "^2.0.1",
     "konva": "^2.6.0",
     "react": "^16.8.0",
@@ -22,6 +24,8 @@
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
+    "predeploy": "npm run build",
+    "deploy": "gh-pages -d build",
     "eject": "react-scripts eject"
   },
   "eslintConfig": {

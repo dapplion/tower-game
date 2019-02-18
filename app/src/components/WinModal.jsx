@@ -1,10 +1,10 @@
 import React from "react";
 import { connect } from "react-redux";
 import { createStructuredSelector } from "reselect";
-import * as s from "./selectors";
-import { hideWinModal } from "./actions";
+import * as s from "../selectors";
+import { hideWinModal } from "../actions";
 import Modal from "react-bootstrap/Modal";
-import winGif from "./img/win.gif";
+import winGif from "../img/win.gif";
 
 const WinModal = ({ show, text, hideWinModal }) => (
   <>

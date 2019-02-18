@@ -2,7 +2,7 @@ import React from "react";
 import { connect } from "react-redux";
 import { createStructuredSelector } from "reselect";
 import Card from "react-bootstrap/Card";
-import * as s from "./selectors";
+import * as s from "../selectors";
 import Big from "big.js";
 
 const ExecutePlay = ({ balance }) =>

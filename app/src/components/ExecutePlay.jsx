@@ -1,8 +1,8 @@
 import React from "react";
 import { connect } from "react-redux";
 import { createStructuredSelector } from "reselect";
-import * as s from "./selectors";
-import { updateDx, executePlay } from "./actions";
+import * as s from "../selectors";
+import { updateDx, executePlay } from "../actions";
 import InputGroup from "react-bootstrap/InputGroup";
 import FormControl from "react-bootstrap/FormControl";
 import Button from "react-bootstrap/Button";
