@@ -7,7 +7,7 @@ install:
   - yarn
 script:
   - yarn run build
-  - gzip -r build
+  - gzip -r -k build
 deploy:
   provider: pages
   skip-cleanup: true
