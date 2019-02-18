@@ -1,15 +1,26 @@
 import React from "react";
 import { connect } from "react-redux";
 import { createStructuredSelector } from "reselect";
+import * as s from "./selectors";
 import { updateDx, executePlay } from "./actions";
 import InputGroup from "react-bootstrap/InputGroup";
 import FormControl from "react-bootstrap/FormControl";
 import Button from "react-bootstrap/Button";
+import Big from "big.js";
 
 const inputId = "play-input-position";
 
-const ExecutePlay = ({ dx, updateDx, executePlay }) => (
+const ExecutePlay = ({ dx, updateDx, executePlay, playPrice }) => (
   <div>
+    <h5 className="sub-sub-title">
+      Execute play{" "}
+      {playPrice
+        ? `(${Big(playPrice)
+            .div(Big(1e18))
+            .round(5)
+            .toString()} ETH)`
+        : null}
+    </h5>
     <InputGroup>
       <FormControl
         id={inputId}
@@ -33,7 +44,8 @@ const ExecutePlay = ({ dx, updateDx, executePlay }) => (
 );
 
 const mapStateToProps = createStructuredSelector({
-  dx: state => state.dx
+  dx: s.getDx,
+  playPrice: s.getPlayPrice
 });
 
 const mapDispatchToProps = {

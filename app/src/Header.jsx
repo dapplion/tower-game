@@ -13,7 +13,7 @@ const Header = ({ network }) => (
     <Navbar.Text className="float-right">
       {network
         ? `Network: ${network.name} ${
-            network.networkGameAddress ? "" : "(Not supported)"
+            network.contractAddress ? "" : "(Not supported)"
           }`
         : "No network"}
     </Navbar.Text>

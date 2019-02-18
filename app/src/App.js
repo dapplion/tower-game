@@ -8,6 +8,8 @@ import GeneralFeedback from "./GeneralFeedback";
 import DisplayGameState from "./DisplayGameState";
 import ExecutePlay from "./ExecutePlay";
 import DisplayResults from "./DisplayResults";
+import DisplayBalance from "./DisplayBalance";
+import WinModal from "./WinModal";
 
 class App extends Component {
   render() {
@@ -21,22 +23,17 @@ class App extends Component {
                 <DisplayGameState />
               </Col>
               <Col sm={5} className="mb-4 side-column-controls">
-                <div>
-                  <GeneralFeedback />
-                </div>
+                <GeneralFeedback />
                 <div className="horizontal-line" />
-                <div>
-                  <h3 className="sub-title">Execute play</h3>
-                  <ExecutePlay />
-                </div>
+                <ExecutePlay />
                 <div className="horizontal-line" />
-                <div>
-                  <h3 className="sub-title">Display Results</h3>
-                  <DisplayResults />
-                </div>
+                <DisplayBalance />
+                <div className="horizontal-line" />
+                <DisplayResults />
               </Col>
             </Row>
           </Container>
+          <WinModal />
         </div>
       </div>
     );

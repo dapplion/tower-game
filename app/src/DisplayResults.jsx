@@ -1,10 +1,14 @@
 import React from "react";
 import { connect } from "react-redux";
 import { createStructuredSelector } from "reselect";
+import * as s from "./selectors";
 import Card from "react-bootstrap/Card";
 import TimeAgo from "javascript-time-ago";
 import en from "javascript-time-ago/locale/en";
 import Big from "big.js";
+import nameGenerator from "./randomNameGenerationSource/nameGenerator";
+
+const useNameGenerator = true;
 
 const ExternalLinkIcon = ({ size }) => (
   <svg
@@ -34,18 +38,19 @@ const byBlockNum = (a, b) => {
   return (b.blockNumber || 0) - (a.blockNumber || 0);
 };
 
-const getTimestampMs = ts => (ts > 1e11 ? ts : ts * 1000);
+const getTimestampMs = ts => (ts ? (ts > 1e11 ? ts : ts * 1000) : ts);
 const msThreshold = 24 * 60 * 60 * 1000;
 
-const DisplayResults = ({ results, link, playPriceWei }) => {
+const DisplayResults = ({ results, link, playPrice }) => {
   const pending = [];
   const recent = [];
   const previous = [];
   for (const result of Object.values(results).sort(byBlockNum)) {
-    if (!result.blockNumber) pending.push(result);
+    if (!result.blockNumber && !result.error) pending.push(result);
     else if (
-      result.timestamp &&
-      Date.now() - getTimestampMs(result.timestamp) < msThreshold
+      result.error ||
+      (result.timestamp &&
+        Date.now() - getTimestampMs(result.timestamp) < msThreshold)
     )
       recent.push(result);
     else previous.push(result);
@@ -68,37 +73,43 @@ const DisplayResults = ({ results, link, playPriceWei }) => {
     .filter(category => category.items.length)
     .map(category => (
       <React.Fragment key={category.name}>
-        <h6 className="sub-sub-title">{category.name}</h6>
+        <h5 className="sub-sub-title">{category.name}</h5>
         {category.items.map((result, i) => {
           const {
-            player,
-            hash,
-            fallingCoins,
-            timestamp,
-            confirmationNumber,
+            player = "",
+            hash = "",
+            fallingCoins = 0,
+            timestamp = "",
+            error = "",
             dx
           } = result;
-          const pending = !Boolean(result.blockNumber);
+          const pending = !Boolean(result.blockNumber) && !error;
           const won = fallingCoins > 0;
-          const you = (
+          const yourAddress = (
             (window.ethereum || {}).selectedAddress || ""
           ).toLowerCase();
-          const playerName =
-            pending || (you && you === (player || "").toLowerCase())
-              ? "You"
-              : trimString(player);
+          const itsYou =
+            pending ||
+            (yourAddress && yourAddress === (player || "").toLowerCase());
+          const playerName = itsYou
+            ? "You"
+            : useNameGenerator && player.length > 20
+            ? nameGenerator(player)
+            : trimString(player);
 
           const timestampMs = getTimestampMs(timestamp);
           const date = pending
             ? "pending"
-            : Date.now() - timestampMs > msThreshold
-            ? new Date(getTimestampMs(timestamp))
-                .toLocaleString("en-GB")
-                .split(",")[0]
-            : timeAgo.format(new Date(getTimestampMs(timestamp)));
+            : timestampMs
+            ? Date.now() - timestampMs > msThreshold
+              ? new Date(getTimestampMs(timestamp))
+                  .toLocaleString("en-GB")
+                  .split(",")[0]
+              : timeAgo.format(new Date(getTimestampMs(timestamp)))
+            : null;
           const wonAmount = won
-            ? playPriceWei
-              ? Big(playPriceWei || 0)
+            ? playPrice
+              ? Big(playPrice || 0)
                   .div(Big(1e18))
                   .times(fallingCoins)
                   .toString() + " ETH"
@@ -114,9 +125,26 @@ const DisplayResults = ({ results, link, playPriceWei }) => {
             >
               <div
                 className="d-flex justify-content-between"
-                style={{ opacity: 0.5 }}
+                style={{ opacity: itsYou ? 0.8 : 0.5 }}
               >
-                <div>{playerName}</div>
+                <div>
+                  {error ? (
+                    <React.Fragment>
+                      <strong>Error! </strong> {String(error)}
+                    </React.Fragment>
+                  ) : (
+                    <React.Fragment>
+                      {playerName}{" "}
+                      {won ? (
+                        <span>won {wonAmount}</span>
+                      ) : (
+                        <span>
+                          played <span style={{ opacity: 0.3 }}>({dx})</span>
+                        </span>
+                      )}
+                    </React.Fragment>
+                  )}
+                </div>
                 <div>
                   {date}{" "}
                   {link && hash ? (
@@ -130,20 +158,6 @@ const DisplayResults = ({ results, link, playPriceWei }) => {
                   ) : null}
                 </div>
               </div>
-              <div className="d-flex justify-content-between">
-                <div>
-                  {won ? (
-                    <span>Won {wonAmount}</span>
-                  ) : (
-                    <span>Played {dx}</span>
-                  )}
-                </div>
-                <div>
-                  {confirmationNumber
-                    ? `${confirmationNumber} confirmations`
-                    : ""}
-                </div>
-              </div>
             </Card>
           );
         })}
@@ -152,9 +166,9 @@ const DisplayResults = ({ results, link, playPriceWei }) => {
 };
 
 const mapStateToProps = createStructuredSelector({
-  results: state => state.results,
-  link: state => (state.network || {}).link,
-  playPriceWei: state => (state.gameSettings || {}).playPriceWei
+  results: s.getResults,
+  link: s.getNetworkLink,
+  playPrice: s.getPlayPrice
 });
 
 const mapDispatchToProps = {};

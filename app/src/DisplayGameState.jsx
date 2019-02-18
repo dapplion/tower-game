@@ -110,7 +110,9 @@ class DisplayGameState extends React.Component {
     const startingX = canvasWidth / stageScale / 2;
 
     const lastRectX =
-      startingX + halfWidth * gameState[gameState.length - 1] - width / 2;
+      startingX +
+      halfWidth * (gameState[gameState.length - 1] || 0) -
+      width / 2;
     const boundRight = lastRectX + halfWidth;
     const boundLeft = lastRectX - halfWidth;
     const topReactY = 70;
@@ -178,17 +180,20 @@ class DisplayGameState extends React.Component {
                 onDragEnd={e => {
                   this.setState({ isDragging: false });
                   this.props.updateDx(
-                    (e.target._lastPos.x - lastRectX) / halfWidth
+                    (
+                      (e.target._lastPos.x - stageScale * lastRectX) /
+                      (stageScale * halfWidth)
+                    ).toFixed(3)
                   );
                 }}
                 dragBoundFunc={pos => ({
                   x:
-                    pos.x > boundRight
-                      ? boundRight
-                      : pos.x < boundLeft
-                      ? boundLeft
+                    pos.x > stageScale * boundRight
+                      ? stageScale * boundRight
+                      : pos.x < stageScale * boundLeft
+                      ? stageScale * boundLeft
                       : pos.x,
-                  y: topReactY
+                  y: stageScale * topReactY
                 })}
               />
             ) : null}
@@ -197,8 +202,8 @@ class DisplayGameState extends React.Component {
             {this.state.isDragging ? (
               <Text
                 text="Drop to select a position"
-                fontSize={18}
-                x={canvasWidth / 2 - 80 * stageScale}
+                fontSize={18 / stageScale}
+                x={canvasWidth / stageScale / 2 - 80 / stageScale}
                 y={topReactY / 2 - 10}
                 shadowBlur={5}
                 fill={"white"}

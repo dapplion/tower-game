@@ -1,5 +1,15 @@
 .app {
   text-align: center;
+  height: 100%;
+  background-color: #f8f9fa;
+}
+
+.app-body {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background-color: #f8f9fa;
 }
 
 /* General APP styles */
@@ -15,14 +25,6 @@
 .app-header {
   background-color: white !important;
   box-shadow: 0 0.5rem 1.2rem #bdc5d133;
-}
-
-.app-body {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  background-color: #f8f9fa;
 }
 
 .app-card {

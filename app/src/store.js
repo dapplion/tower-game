@@ -6,7 +6,7 @@ import rootSaga from "./rootSaga";
 // create the saga middleware
 const sagaMiddleware = createSagaMiddleware();
 
-export default createStore(
+const store = createStore(
   rootReducer,
   // eslint-disable-next-line no-underscore-dangle
   compose(
@@ -17,3 +17,8 @@ export default createStore(
 
 // then run the saga
 sagaMiddleware.run(rootSaga);
+
+// For debugging and testing
+window.store = store;
+
+export default store;
