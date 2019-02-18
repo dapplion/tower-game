@@ -6,7 +6,7 @@ http://dapplion.github.io/tower-game
 
 <p align="center">
   <a href="http://dapplion.github.io/tower-game">
-    <img width="300" height="87" src="https://github.com/dappnode/DAppNode/raw/master/doc/DappnodeInstall.png">
+    <img src="./demo.png">
   </a>
 </p>
 
